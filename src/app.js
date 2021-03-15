@@ -4,9 +4,14 @@ const hbs = require('hbs')
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
 const { traceDeprecation } = require('process')
+const passport = require('./utils/passport')
+const isAuthenticated = require('./utils/auth')
 
 const app = express()
 const port = process.env.PORT || 3000
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 // define paths for Express config
 const publicDirPath = path.join(__dirname, '../public')
@@ -18,25 +23,25 @@ app.set('view engine', 'hbs')
 app.set('views', viewsDirPath)
 hbs.registerPartials(partialsDirPath)
 
-
 // setup static directory location
 app.use(express.static(publicDirPath))
 
-app.get('', (req, res) => {
+
+app.get('', isAuthenticated,(req, res) => {
     res.render('index', {
         title: "Weather App",
         name: "Revanth"
     })
 })
 
-app.get('/help', (req, res) => {
+app.get('/help', isAuthenticated,(req, res) => {
     res.render('help', {
         title: "Help",
         name: "Revanth"
     })
 })
 
-app.get('/weather', (req, res) => {
+app.get('/weather', isAuthenticated,(req, res) => {
     if (!req.query.address) {
         return res.send({
             error: "Address not provided."
@@ -63,7 +68,7 @@ app.get('/weather', (req, res) => {
     })
 })
 
-app.get('*', (req, res) => {
+app.get('*', isAuthenticated,(req, res) => {
     res.render('404', {
         title: "Weather App",
         name: "Revanth"

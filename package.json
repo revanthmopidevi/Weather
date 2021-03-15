@@ -6,6 +6,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "hbs": "^4.1.1",
+    "passport": "^0.4.1",
+    "passport-saml": "^2.0.5",
     "postman-request": "^2.88.1-postman.28"
   },
   "devDependencies": {},
