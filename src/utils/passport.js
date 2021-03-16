@@ -12,14 +12,14 @@ passport.deserializeUser((user, done) => {
 
 // SAML strategy for passport -- Single IPD
 const strategy = new passportSaml.Strategy(
-  {
-    path: '/login/callback',
-    entryPoint: '',
-    issuer: process.env.SSO_ISSUER,
-    // callbackUrl: 'http://localhost:3000',
-    cert: path.join(__dirname, '../../resources/duoCert.xml'),
-  },
-  (profile, done) => done(null, profile)
+    {
+      path: '/login/callback',
+      entryPoint: 'https://sso-277d8abb.sso.duosecurity.com/saml2/idp/RI8UPKP9T5WBYKXFUGGO/acs',
+      issuer: 'https://sso-277d8abb.sso.duosecurity.com/saml2/idp/RI8UPKP9T5WBYKXFUGGO/metadata',
+      cert = process.env.SSO_CERT
+      // callbackUrl: 'http://localhost:3000',
+    },
+    (profile, done) => done(null, profile),
 )
 
 passport.use(strategy)
