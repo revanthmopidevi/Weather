@@ -1,3 +1,4 @@
+const path = require('path')
 const passport = require('passport')
 const passportSaml = require('passport-saml')
 
@@ -12,13 +13,14 @@ passport.deserializeUser((user, done) => {
 // SAML strategy for passport -- Single IPD
 const strategy = new passportSaml.Strategy(
   {
+    path: '/login/callback',
     entryPoint: process.env.SSO_ENTRYPOINT,
     issuer: process.env.SSO_ISSUER,
-    callbackUrl: process.env.SSO_CALLBACK_URL,
-    cert: process.env.SSO_CERT,
+    // callbackUrl: 'http://loc  alhost:3000',
+    cert: path.join(__dirname, '../../resources/duoCert.xml'),
   },
-  (profile, done) => done(null, profile),
-)   
+  (profile, done) => done(null, profile)
+)
 
 passport.use(strategy)
 

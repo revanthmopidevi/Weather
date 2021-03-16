@@ -1,15 +1,19 @@
 const express = require('express')
 const path = require('path')
 const hbs = require('hbs')
+const Saml2js = require('saml2js')
+const session = require('express-session')
+const { traceDeprecation } = require('process')
+// custom imported modules
+const passport = require('./utils/passport')
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
-const { traceDeprecation } = require('process')
-const passport = require('./utils/passport')
 const isAuthenticated = require('./utils/auth')
 
 const app = express()
 const port = process.env.PORT || 3000
 
+app.use(session({secret: 'Newuser@123'}))
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -26,8 +30,30 @@ hbs.registerPartials(partialsDirPath)
 // setup static directory location
 app.use(express.static(publicDirPath))
 
+app.get('/login/', 
+    passport.authenticate('saml', {
+        successRedirect: '/',
+        failureRedirect: '/login'
+    })
+)
 
-app.get('', isAuthenticated,(req, res) => {
+app.post('/login/callback',
+    passport.authenticate('saml', { failureRedirect: '/login', failureFlash: true }), (req, res, next) => {
+        const xmlResponse = req.body.SAMLResponse
+        const parser = new Saml2js(xmlResponse)
+        req.samlUserObject = parser.toObject()
+        console.log(samlUserObject) // TESTING
+        next();
+    },
+)
+
+app.get('/logout', (req, res) => {
+    req.logout()
+    res.redirect('/')
+}
+)
+
+app.get('/', isAuthenticated,(req, res) => {
     res.render('index', {
         title: "Weather App",
         name: "Revanth"
