@@ -16,7 +16,7 @@ const strategy = new passportSaml.Strategy(
     path: '/login/callback',
     entryPoint: '',
     issuer: process.env.SSO_ISSUER,
-    // callbackUrl: 'http://loc  alhost:3000',
+    // callbackUrl: 'http://localhost:3000',
     cert: path.join(__dirname, '../../resources/duoCert.xml'),
   },
   (profile, done) => done(null, profile)
