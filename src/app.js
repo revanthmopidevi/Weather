@@ -1,14 +1,10 @@
 const express = require('express')
 const path = require('path')
 const hbs = require('hbs')
-const Saml2js = require('saml2js')
-const session = require('express-session')
 const { traceDeprecation } = require('process')
 // custom imported modules
-const passport = require('./utils/passport')
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
-const isAuthenticated = require('./utils/auth')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -30,44 +26,8 @@ hbs.registerPartials(partialsDirPath)
 // setup static directory location
 app.use(express.static(publicDirPath))
 
-app.get('/login/', 
-    passport.authenticate('saml', {
-        successRedirect: '/',
-        failureRedirect: '/login'
-    })
-)
 
-app.post('/login/callback',
-    passport.authenticate('saml', { failureRedirect: '/login', failureFlash: true }), (req, res, next) => {
-        const xmlResponse = req.body.SAMLResponse
-        const parser = new Saml2js(xmlResponse)
-        req.samlUserObject = parser.toObject()
-        console.log(samlUserObject) // TESTING
-        next();
-    },
-)
-
-app.get('/logout', (req, res) => {
-    req.logout()
-    res.redirect('/')
-}
-)
-
-app.get('/', isAuthenticated,(req, res) => {
-    res.render('index', {
-        title: "Weather App",
-        name: "Revanth"
-    })
-})
-
-app.get('/help', isAuthenticated,(req, res) => {
-    res.render('help', {
-        title: "Help",
-        name: "Revanth"
-    })
-})
-
-app.get('/weather', isAuthenticated,(req, res) => {
+app.get('/weather', (req, res) => {
     if (!req.query.address) {
         return res.send({
             error: "Address not provided."
@@ -94,7 +54,7 @@ app.get('/weather', isAuthenticated,(req, res) => {
     })
 })
 
-app.get('*', isAuthenticated,(req, res) => {
+app.get('*', (req, res) => {
     res.render('404', {
         title: "Weather App",
         name: "Revanth"
